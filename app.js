@@ -3,13 +3,11 @@ const bodyParser = require("body-parser");
 
 const port = process.env.PORT || 6000;
 
-// Create a Bolt Receiver
 const receiver = new ExpressReceiver({
     signingSecret: process.env.SLACK_SIGNING_SECRET,
 });
 receiver.router.use(bodyParser.json());
 
-// Create the Bolt App, using the receiver
 const app = new App({
     token: process.env.SLACK_BOT_TOKEN,
     logLevel: LogLevel.DEBUG,
@@ -83,13 +81,11 @@ receiver.router.post("/v1/webhook", async (req, res) => {
     }
 });
 
-// Acknowledge clicks on link_button, otherwise Slack UI
-// complains about missing events.
+
 app.action("button_click", async ({ body, ack, say }) => {
     await ack(); // no specific action needed
 });
 
-// Start the Bolt app
 (async () => {
     await app.start(port);
     console.log("⚡️ Coder Slack bot is running!");
