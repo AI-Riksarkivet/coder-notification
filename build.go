@@ -12,14 +12,12 @@ import (
 func main() {
 	ctx := context.Background()
 
-	// Initialize Dagger client
 	client, err := dagger.Connect(ctx, dagger.WithLogOutput(os.Stderr))
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer client.Close()
 
-	// Get build arguments from environment variables or use defaults
 	imageTag := os.Getenv("IMAGE_TAG")
 	if imageTag == "" {
 		imageTag = "slack-bolt-coder:latest"
@@ -30,7 +28,6 @@ func main() {
 		imageTag = fmt.Sprintf("%s/%s", registry, imageTag)
 	}
 
-	// Get the source directory
 	src := client.Host().Directory(".", dagger.HostDirectoryOpts{
 		Exclude: []string{
 			"node_modules/",
@@ -43,7 +40,6 @@ func main() {
 		},
 	})
 
-	// Build the container
 	container := client.Container().
 		From("node:20-alpine").
 		WithWorkdir("/app").
@@ -57,7 +53,6 @@ func main() {
 		WithExposedPort(6000).
 		WithEntrypoint([]string{"node", "app.js"})
 
-	// Export the container image
 	_, err = container.Export(ctx, imageTag)
 	if err != nil {
 		log.Fatal(err)
@@ -65,7 +60,6 @@ func main() {
 
 	fmt.Printf("Successfully built image: %s\n", imageTag)
 
-	// Optional: Push to registry if PUSH_TO_REGISTRY is set
 	if os.Getenv("PUSH_TO_REGISTRY") == "true" && registry != "" {
 		fmt.Printf("Pushing image to registry: %s\n", imageTag)
 		_, err = container.Publish(ctx, imageTag)
