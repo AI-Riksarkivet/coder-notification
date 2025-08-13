@@ -83,7 +83,7 @@ receiver.router.post("/v1/webhook", async (req, res) => {
 
 
 app.action("button_click", async ({ body, ack, say }) => {
-    await ack(); // no specific action needed
+    await ack(); 
 });
 
 (async () => {
